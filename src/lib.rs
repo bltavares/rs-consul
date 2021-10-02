@@ -98,6 +98,10 @@ quick_error! {
         ServiceInstanceResolutionFailed(service_name: String) {
             display("Unable to resolve service '{}' to a concrete list of addresses and ports for its instances via consul.", service_name)
         }
+        /// IO error from Ureq.
+        InvalidUreq(err: ureq::Error) {
+            from()
+        }
     }
 }
 
@@ -271,7 +275,7 @@ impl Consul {
                 "X-Consul-Token",
                 &self.config.token.clone().unwrap_or_default(),
             )
-            .send_bytes(&value);
+            .send_bytes(&value)?;
 
         let status = res.status();
         if status == 200 {
